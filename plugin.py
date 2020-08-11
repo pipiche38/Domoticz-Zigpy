@@ -78,10 +78,10 @@ class MainListener:
         self.application = application
 
     def device_joined(self, device):
-        print(f"Device joined: {device}")
+        Domoticz.Log(f"Device joined: {device}")
 
     def attribute_updated(self, device, cluster, attribute_id, value):
-        print(f"Received an attribute update {attribute_id}={value}"
+        Domoticz.Log(f"Received an attribute update {attribute_id}={value}"
               f" on cluster {cluster} from device {device}")
 
 async def main():
