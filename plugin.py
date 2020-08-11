@@ -63,6 +63,7 @@
 
 import Domoticz
 import asyncio
+import threading
 
 # There are many different radio libraries but they all have the same API
 from zigpy_zigate.zigbee.application import ControllerApplication
@@ -75,49 +76,88 @@ class MainListener:
     """
 
     def __init__(self, application):
+        Domoticz.Log("MainListener init")
         self.application = application
 
     def device_joined(self, device):
         Domoticz.Log(f"Device joined: {device}")
+        Domoticz.Log(" - NwkId: %s" %device.nwk)
+        Domoticz.Log(" - IEEE: %s" %device._ieee)
+        Domoticz.Log(" - LQI: %s" %device.lqi)
+        Domoticz.Log(" - RSSI: %s" %device.rssi)
+        
+        #Domoticz.Log(" - Manuf: %s" %self._manufacturer)
+        #Domoticz.Log(" - Model: %s" %self._model)
+
+        Domoticz.Log(" - Ep: %s" %device.endpoints)
+        #for ep_id, ep in device.endpoints.items():
+        #    #Domoticz.Log(" ep_id: %s ep: %s" %(ep_id, ep))
+        #    #Domoticz.Log(" - Ep: %s" %ep._endpoint_id)
+        #    #Domoticz.Log("   In Cluster : %s" %ep.in_cluster)
+        #    #Domoticz.Log("   Out Cluster: %s" %ep.out_cluster)
+        #    #Domoticz.Log("   Profile ID : %s" %ep.profile_id)
+        #    #Domoticz.Log("   Device Type: %s" %ep.device_type)
+
 
     def attribute_updated(self, device, cluster, attribute_id, value):
         Domoticz.Log(f"Received an attribute update {attribute_id}={value}"
               f" on cluster {cluster} from device {device}")
 
-async def main():
-    app = ControllerApplication(ControllerApplication.SCHEMA({
-        "database_path": "/var/lib/domoticz/plugins/Domoticz-Zigpy/Datas/zigpy.db",
-        "device": {
-            "path": "/dev/ttyUSBRPI3",
-        }
 
-    }))
-
-    listener = MainListener(app)
-    app.add_listener(listener)
-
-    await app.startup(auto_form=True)
-
-    # Permit joins for a minute
-    await app.permit(60)
-    await asyncio.sleep(60)
-
-    # Just run forever
-    await asyncio.get_running_loop().create_future()
 
 
 class BasePlugin:
     enabled = False
+
+
     def __init__(self):
-        #self.var = 123
-        pass
+        self.zigpyThread = None
+        self.zigpyApp = None
+
+    async def main( self ):
+        self.zigpyApp = ControllerApplication(ControllerApplication.SCHEMA({
+            "database_path": "/var/lib/domoticz/plugins/Domoticz-Zigpy/Datas/zigpy.db",
+            "device": {
+                "path": "/dev/ttyUSBRPI3",
+            }
+
+        }))
+
+        listener = MainListener(self.zigpyApp)
+        self.zigpyApp.add_listener(listener)
+
+        await self.zigpyApp.startup(auto_form=True)
+
+        await self.zigpyApp.form_network( channel=11 )
+
+        # Permit joins for a minute
+        await self.zigpyApp.permit(60)
+        await asyncio.sleep(60)
+
+        # Just run forever
+        await asyncio.get_running_loop().create_future()
+
+    def zigpy_thread( self ):
+            try:
+                asyncio.run(self.main())
+            except Exception as e:
+                Domoticz.Error("Error on asyncio.run: %s" %e)
+
+
 
     def onStart(self):
-        asyncio.run(main())
+        
         Domoticz.Log("onStart called")
+        self.zigpyThread = threading.Thread(
+                            name="ZigpyThread", 
+                            target=BasePlugin.zigpy_thread,
+                            args=(self,))
+        self.zigpyThread.start()
+
 
     def onStop(self):
         Domoticz.Log("onStop called")
+        self.zigpyApp.shutdown()
 
     def onConnect(self, Connection, Status, Description):
         Domoticz.Log("onConnect called")
@@ -186,3 +226,23 @@ def DumpConfigToLog():
         Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
         Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
     return
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
