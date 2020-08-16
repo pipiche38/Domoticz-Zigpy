@@ -1,12 +1,17 @@
 import asyncio
 import logging
+#import coloredlogs
+#coloredlogs.install(milliseconds=True, level=logging.DEBUG)
+
 import threading
 
 from zigpy.device import Device
 
 # There are many different radio libraries but they all have the same API
 from zigpy_zigate.zigbee.application import ControllerApplication
-import zigpy_zigate.config as config
+import zigpy.config as config
+
+THREAD = True
 
 APP_CONFIG = {
     config.CONF_DEVICE: {
@@ -29,49 +34,71 @@ class MainListener:
 
 
     def device_joined(self, device):
+        # At that stage, only IEEE, NWKID are known.
+        # We have to wait the full discovery completed.
+
         print(f"Device joined: {device}")
         print(" - NwkId: %s" %device.nwk)
         print(" - IEEE: %s" %device._ieee)
-        print(" - LQI: %s" %device.lqi)
-        print(" - RSSI: %s" %device.rssi)
-        
-        for key, endp in device.endpoints.items():
-            LOGGER.info("endpoint %s", key)
 
-            if hasattr(endp, "in_clusters"):
-                LOGGER.info("in_clusters %s", endp.in_clusters)
-                LOGGER.info("out_clusters %s", endp.out_clusters)
+    def device_initialized(self, device, *, new=True):
+        """
+        Called at runtime after a device's information has been queried.
+        I also call it on startup to load existing devices from the DB.
+        """
+        LOGGER.info("Device is ready: new=%s, device=%s", new, device)
 
-                asyncio.sleep(2)
-                endp.out_clusters[8].bind()
+        for ep_id, endpoint in device.endpoints.items():
+            # Ignore ZDO
+            if ep_id == 0:
+                continue
 
-                    
-        #print(" - Manuf: %s" %device.manufacturer())
-        #print(" - Model: %s" %device.model())
+            # You need to attach a listener to every cluster to receive events
+            for cluster in endpoint.in_clusters.values():
+                # The context listener passes its own object as the first argument
+                # to the callback
+                cluster.add_context_listener(self)
 
-        print(" - Signature: %s" %device.get_signature())
 
-    def attribute_updated(self, device, cluster, attribute_id, value):
-        print(f"Received an attribute update {attribute_id}={value}"
-              f" on cluster {cluster} from device {device}")
+    def attribute_updated(self, cluster, attribute_id, value):
+        # Each object is linked to its parent (i.e. app > device > endpoint > cluster)
+        device = cluster.endpoint.device
 
+        LOGGER.info("Received an attribute update %s=%s on cluster %s from device %s",
+            attribute_id, value, cluster, device)
+
+# def get_devices(self):
+#         devices = []
+# 
+#         for ieee, dev in self.app.devices.items():
+#             device = {
+#                 "ieee": self._ieee_to_number(ieee),
+#                 "nwk": dev.nwk,
+#                 "endpoints": []
+#             }
+#             for epid, ep in dev.endpoints.items():
+#                 if epid == 0:
+#                     continue
+#                 device["endpoints"].append({
+#                     "id": epid,
+#                     "input_clusters": [in_cluster for in_cluster in ep.in_clusters] if hasattr(ep, "in_clusters") else [],
+#                     "output_clusters": [out_cluster for out_cluster in ep.out_clusters] if hasattr(ep, "out_clusters") else [],
+#                     "status": "uninitialized" if ep.status == zigpy.endpoint.Status.NEW else "initialized"
+#                 })
+# 
+#             devices.append(device)
+#         return devices
 
 async def main( ):
 
     import zhaquirks  # noqa: F401
 
-    try:
-        zigpyApp = ControllerApplication(APP_CONFIG)
+    zigpyApp = await ControllerApplication.new(APP_CONFIG, auto_form=False)
         
-    except KeyError:
-        LOGGER.error("DB error, removing DB...")
-
-
-
     listener = MainListener(zigpyApp)
     zigpyApp.add_listener(listener)
 
-    await zigpyApp.startup(auto_form=False)
+    #await zigpyApp.startup(auto_form=False)
     await zigpyApp.form_network( channel=11 )
 
     # Permit joins for a minute
@@ -101,5 +128,8 @@ def launch_thread( ):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    launch_thread()
-    #asyncio.run(main())
+    if THREAD:
+        launch_thread()
+    else:
+        asyncio.run(main())
+
