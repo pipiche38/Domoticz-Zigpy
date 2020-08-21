@@ -86,6 +86,7 @@ class PersistingListener:
         self._create_table_relays()
 
     def execute(self, *args, **kwargs):
+        Domoticz.Log("execute %s %s" %(str(*args), str(**kwargs)))
         self._cursor = self._db.cursor()
         ret = self._cursor.execute(*args, **kwargs)
         self._db.commit()
@@ -294,3 +295,23 @@ def DumpConfigToLog():
         Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
         Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
     return
+
+THREAD = True
+
+if __name__ == "__main__":
+
+
+    class Domoticz:
+
+        def Log(  message):
+            print( '%s' %message )
+
+
+
+    plugin = BasePlugin()
+
+    if THREAD:
+        plugin.onStart( )
+    else:
+        asyncio.run(main( plugin ))
+
