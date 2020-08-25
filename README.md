@@ -6,7 +6,7 @@
 
 Zigbee integration via zigpy will allow users to directly connect one of many off-the-shelf Zigbee adapters from different manufacturers using one of the available Zigbee radio library modules compatible with the zigpy API to control Zigbee based devices. This can enable the use of the same common interface no matter which hardware users have.
 
-- https://github.com/zigpy/zigpy
+- <https://github.com/zigpy/zigpy>
 
 This project as such will rely on multiple radio libraries from the zigpy project as a dependency to interface with Zigbee radios which all aim to provide a coherent and consistent API in order among them to make it easier for integrations to support multiple adapters for different hardware manufacturers. For now though it is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
 
@@ -19,11 +19,9 @@ This project as such will rely on multiple radio libraries from the zigpy projec
 
 It addition it will utilize the zha-device-handlers (a.k.a. zha-quirks) library from the zigpy project as a dependency as it will act as a tranaslator to try to handle individual Zigbee device exception and deviation handling for those Zigbee devices that do not fully conform to the standard specifications set by the Zigbee Alliance.
 
-- https://github.com/zigpy/zha-device-handlers
+- <https://github.com/zigpy/zha-device-handlers>
 
 ## Design Principle
-
-In order to cohexist with the Domoticz Python Plugin Framework, a dedicated thread will be lauched a plugin start to handle all zigpy related matters.
 
 As of the ZiGate plugin, Domoticz Widgets will be created based on the Zigbee device capabilities. Most likely the device signature from a Zigpy standpoint. Basically based on the Cluster list by device.
 
@@ -32,6 +30,15 @@ In order to identify each device in Domoticz with a plugin uniq identifier, the 
 onMessage won't be use as zigpy will open the communication line with the HW.
 
 Keep the same principle as for the ZiGate plugin, no middle application in between. Makes the plugin fully autonomous and bridge Domoticz to the HW.
+
+### Threads
+
+1. The PythonPluginThread (main thread).
+1. One thread will be dedicated to the Zigbee layer and will manage the all zigpy part
+1. One thread will manage the Domoticz layer ( Widget creation and all updates required by inbound communition from Zigbee )
+1. A communication scheme (Queue) will be put in place to ensure communication between the 3 threads:
+   * zigpy thread <-> domoticz thread
+   * main thread <-> zigpy thread)
 
 Will most-likely required a Web Admin page in order to :
 
