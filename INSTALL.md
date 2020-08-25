@@ -23,7 +23,7 @@ My current development platform is :
 
 ### Installation (Fedora specific )
 
-* Under Fedora32 it looks like there are some conflict between the various python3 librariries used by zigpy and mainly zigpy-zigate.
+* Under Fedora32 it looks like there are some conflict between the various python3 librariries used by zigpy and mainly zigpy-zigate ( I guess it is related to RPi.GPIO).
 * In order to get closer to the end users, all the zigpy related libraries and dependencies are directly installed on the directory where the Domoticz plugin is.
   * `pip3 install -t . zigpy zha-device-handlers`
   
