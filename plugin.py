@@ -66,6 +66,9 @@ import asyncio
 import threading
 import logging
 
+
+
+
 # There are many different radio libraries but they all have the same API
 from zigpy_zigate.zigbee.application import ControllerApplication
 
@@ -80,6 +83,7 @@ import zigpy.types
 from zigpy.zdo import types as zdo_t
 
 class JSONPersistingListener:
+    # This provides persistent storage of the zigpy Device Database.
     def __init__(self, database_file, application):
         self._database_file = pathlib.Path(database_file)
         self._application = application
@@ -196,8 +200,9 @@ class JSONControllerApplication(ControllerApplication):
     def __init__(self, config):
         super().__init__(self.SCHEMA(config))
 
-        # Replace the internal SQLite DB listener with our own
+        # Makes the Zigpy database persistent.
         self._dblistener = JSONPersistingListener(self.config['json_database_path'], self)
+        
         self.add_listener(self._dblistener)
         self._dblistener.load()
         self._dblistener._dump()
@@ -224,7 +229,7 @@ class MainListener:
         Called at runtime after a device's information has been queried.
         I also call it on startup to load existing devices from the DB.
         """
-        LOGGER.info("Device is ready: new=%s, device=%s", new, device)
+        LOGGER.info("Device is ready: new=%s, device=%s signature=%s", new, device, device.get_signature())
 
         for ep_id, endpoint in device.endpoints.items():
             # Ignore ZDO
@@ -241,12 +246,11 @@ class MainListener:
         # Each object is linked to its parent (i.e. app > device > endpoint > cluster)
         device = cluster.endpoint.device
 
-        LOGGER.info("Received an attribute update %s=%s on cluster %s from device %s",
-            attribute_id, value, cluster, device)
+        Domoticz.Log("Received an attribute update %s=%s on cluster %s from device %s" %( attribute_id, value, cluster, device) )
 
 
-async def main():
-    #app = await ControllerApplication.new(
+async def main( self ):
+    #self.zigpyApp = await ControllerApplication.new(
     #    config=ControllerApplication.SCHEMA({
     #        "database_path": "/tmp/zigpy.db",
     ##        "device": {
@@ -256,7 +260,11 @@ async def main():
     ###    auto_form=True,
     #    start_radio=True,
     #)
-    app = await JSONControllerApplication.new(
+
+    # Make sure that we have the quirks embedded.
+    import zhaquirks  # noqa: F401
+
+    self.zigpyApp = await JSONControllerApplication.new(
         config=ControllerApplication.SCHEMA({
             "json_database_path": "/tmp/zigpy.json",
             "device": {
@@ -267,26 +275,28 @@ async def main():
         start_radio=True,
     )
 
-    listener = MainListener(app)
-    app.add_listener(listener)
+    listener = MainListener( self.zigpyApp )
+    self.zigpyApp.add_listener(listener)
 
     # Have every device in the database fire the same event so you can attach listeners
-    for device in app.devices.values():
+    for device in self.zigpyApp.devices.values():
         listener.device_initialized(device, new=False)
 
     # Permit joins for a minute
-    await app.permit(60)
+    await self.zigpyApp.permit(60)
     await asyncio.sleep(60)
 
     # Run forever
+    Domoticz.Log("Starting work loop")
     await asyncio.get_running_loop().create_future()
+    Domoticz.Log("Exiting work loop")
 
 class BasePlugin:
 
     def __init__(self):
         self.zigpyThread = None
         self.zigpyApp = None
-        logging.basicConfig(level=logging.DEBUG)     
+        logging.basicConfig(level=logging.INFO)     
 
     def get_devices(self):
         devices = []
@@ -313,7 +323,7 @@ class BasePlugin:
     def zigpy_thread( self ):
             try:
                 Domoticz.Log("Starting the thread")
-                asyncio.run( main() )
+                asyncio.run( main( self ) )
                 Domoticz.Log("Thread ended")
 
             except Exception as e:
