@@ -67,7 +67,7 @@ import threading
 import logging
 
 
-PERSISTENT_DB = 'zigpy.json'
+PERSISTENT_DB = 'Data/zigpy.json'
 
 # There are many different radio libraries but they all have the same API
 from zigpy_zigate.zigbee.application import ControllerApplication
@@ -293,8 +293,8 @@ async def main( self ):
         listener.device_initialized(device, new=False)
 
     # Permit joins for a minute
-    await self.zigpyApp.permit(60)
-    await asyncio.sleep(60)
+    await self.zigpyApp.permit(240)
+    await asyncio.sleep(240)
 
     # Run forever
     Domoticz.Log("Starting work loop")
