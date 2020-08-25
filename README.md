@@ -2,7 +2,24 @@
 
 ## Introduction
 
-Rely on the zigpy library to interface with all Zigbee related HW and provide a coherent/consistent and uniq API.
+[Domoticz-Zigpy](https://github.com/zigpy/zigpy) is an integration project which goal is to implement Zigbee support in [Domoticz] home automation software using the zigpy Python library.
+
+Zigbee integration via zigpy will allow users to directly connect one of many off-the-shelf Zigbee adapters from different manufacturers using one of the available Zigbee radio library modules compatible with the zigpy API to control Zigbee based devices. This can enable the use of the same common interface no matter which hardware users have.
+
+- https://github.com/zigpy/zigpy
+
+This project as such will rely on multiple radio libraries from the zigpy project as a dependency to interface with Zigbee radios which all aim to provide a coherent and consistent API in order among them to make it easier for integrations to support multiple adapters for different hardware manufacturers. For now though it is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
+
+- [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/zigpy/bellows)
+- [zigpy-cc - zigpy radio library supporting older Texas Instruments Z-Stack (CC253x) based Zigbee radios](https://github.com/zigpy/zigpy-cc)
+- [zigpy-deconz - zigpy radio library supporting dresden dlektronik deCONZ (ConBee and RaspBee) based Zigbee radios](https://github.com/zigpy/zigpy-deconz)
+- [zigpy-xbee - zigpy radio library supporting XBee based Zigbee radios](https://github.com/zigpy/zigpy-xbee)
+- [zigpy-zigate - zigpy radio library supporting ZiGate based Zigbee radios](https://github.com/zigpy/zigpy-zigate)
+- [zigpy-znp - zigpy radio library supporting newer Texas Instruments Z-Stack (CC2652 and CC1352) based Zigbee radios](https://github.com/zha-ng/zigpy-znp)
+
+It addition it will utilize the zha-device-handlers (a.k.a. zha-quirks) library from the zigpy project as a dependency as it will act as a tranaslator to try to handle individual Zigbee device exception and deviation handling for those Zigbee devices that do not fully conform to the standard specifications set by the Zigbee Alliance.
+
+- https://github.com/zigpy/zha-device-handlers
 
 ## Design Principle
 
