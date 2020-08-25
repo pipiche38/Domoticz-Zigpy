@@ -67,7 +67,7 @@ import threading
 import logging
 
 
-
+PERSISTENT_DB = 'zigpy.json'
 
 # There are many different radio libraries but they all have the same API
 from zigpy_zigate.zigbee.application import ControllerApplication
@@ -201,7 +201,7 @@ class JSONControllerApplication(ControllerApplication):
         super().__init__(self.SCHEMA(config))
 
         # Makes the Zigpy database persistent.
-        self._dblistener = JSONPersistingListener(self.config['json_database_path'], self)
+        self._dblistener = JSONPersistingListener(self.config[ 'json_database_path' ], self)
         
         self.add_listener(self._dblistener)
         self._dblistener.load()
@@ -264,11 +264,21 @@ async def main( self ):
     # Make sure that we have the quirks embedded.
     import zhaquirks  # noqa: F401
 
+    if self.DomoticzParams["Mode1"] in ( 'USB', 'DIN'):
+        path = self.DomoticzParams["SerialPort"]
+
+    elif self.DomoticzParams["Mode1"] == 'PI':
+        path = 'pizigate:%s' %self.DomoticzParams["SerialPort"]
+
+    else:
+        Domoticz.Error("Mode: %s Not implemented Yet")
+        return
+
     self.zigpyApp = await JSONControllerApplication.new(
         config=ControllerApplication.SCHEMA({
-            "json_database_path": "/tmp/zigpy.json",
+            "json_database_path": self.DomoticzParams["HomeFolder"] + PERSISTENT_DB,
             "device": {
-                "path": "/dev/ttyUSBRPI3", #/dev/ttyUSBRPI3",
+                "path": path, 
             }
         }),
         auto_form=True,
@@ -296,6 +306,8 @@ class BasePlugin:
     def __init__(self):
         self.zigpyThread = None
         self.zigpyApp = None
+        self.DomoticzParams = {}
+        
         logging.basicConfig(level=logging.INFO)     
 
     def get_devices(self):
@@ -331,6 +343,7 @@ class BasePlugin:
 
     def onStart(self):
         logging.basicConfig(level=logging.DEBUG)
+        self.DomoticzParams = dict(Parameters)
         Domoticz.Log("onStart called")
         self.zigpyThread = threading.Thread(
                             name="ZigpyThread", 
