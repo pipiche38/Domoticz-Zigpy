@@ -31,7 +31,9 @@ onMessage won't be use as zigpy will open the communication line with the HW.
 
 Keep the same principle as for the ZiGate plugin, no middle application in between. Makes the plugin fully autonomous and bridge Domoticz to the HW.
 
-### Threads
+Try to ease the integration of the Zigate plugin . There are quiet a large developement done like Schneider (where we simulate more-less the HUB) , and it would benefit to the new plugin. In such it might be helpfull to keep a number of API common between the 2 plugins !
+
+### Threads (to be claified)
 
 1. The PythonPluginThread (main thread).
 1. One thread will be dedicated to the Zigbee layer and will manage the all zigpy part
