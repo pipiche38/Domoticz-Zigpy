@@ -222,9 +222,9 @@ class MainListener:
         self.domoticzDevices = Devices
 
     def device_joined(self, device):
-        Domoticz.Log(f"Device joined: {device}")
-        Domoticz.Log(" - NwkId: %s" %device.nwk)
-        Domoticz.Log(" - IEEE: %s" %device._ieee)
+        Domoticz.Debug(f"Device joined: {device}")
+        Domoticz.Debug(" - NwkId: %s" %device.nwk)
+        Domoticz.Debug(" - IEEE: %s" %device._ieee)
 
 
     def device_initialized(self, device, *, new=True):
@@ -255,10 +255,10 @@ class MainListener:
     def attribute_updated(self, cluster, attribute_id, value):
         # Each object is linked to its parent (i.e. app > device > endpoint > cluster)
         device = cluster.endpoint.device
-        Domoticz.Log("Device Signature: %s" %device.get_signature())
-        Domoticz.Log("Received an attribute update %s=%s on cluster %s from device %s/%s" %( attribute_id, value, cluster, device, device._ieee) )
-        Domoticz.Log("Cluster %04x Attribute: %s value: %s type(%s)" %(cluster.cluster_id, attribute_id, value, type(value)))
-
+        Domoticz.Debug("Device Signature: %s" %device.get_signature())
+        Domoticz.Debug("Received an attribute update %s=%s on cluster %s from device %s/%s" %( attribute_id, value, cluster, device, device._ieee) )
+        Domoticz.Debug("Cluster %04x Attribute: %s value: %s type(%s)" %(cluster.cluster_id, attribute_id, value, type(value)))
+        domoMajDevice( self, device._ieee, cluster.cluster_id, attribute_id, value )
 
 async def main( self ):
     #self.zigpyApp = await ControllerApplication.new(
@@ -388,43 +388,110 @@ class BasePlugin:
     def onHeartbeat(self):
         Domoticz.Log("onHeartbeat called")
 
+def domoMajDevice( self, device_ieee, cluster, attribute_id, value ):
+
+    Domoticz.Debug("domoMajDevice - Device_ieee: %s cluster: %s attribute_id: %s value: %s" %(device_ieee, cluster, attribute_id, value))
+    needed_widget_type = get_type_from_cluster( cluster )
+
+    Domoticz.Debug("---> Cluster to Widget: %s" %needed_widget_type)
+    if needed_widget_type is None:
+        return
+
+    for unit in device_list_units( self, device_ieee):
+
+        if needed_widget_type != get_TypeName_from_device( self, unit ):
+            continue
+
+        if needed_widget_type == 'Lux' and attribute_id == 0x0000:
+            Domoticz.Debug("Updating -----> Lux")
+            nValue = int(value)
+            sValue = str(nValue)
+            UpdateDevice(self, unit, nValue, sValue )
+
+        elif needed_widget_type == 'Motion' and attribute_id == 0x0000:
+            Domoticz.Debug("Updating-----> Motion")
+            if bool(value):
+                nValue = 1
+                sValue = 'On'
+            else:
+                nValue = 0
+                sValue = 'Off'
+            UpdateDevice(self, unit, nValue, sValue )
+
+def get_TypeName_from_device( self, unit):
+    
+    MATRIX_TYPENAME = {
+        (243,0,0): "Lux",
+        (244,73,8): "Motion",
+    }
+
+    Type = self.domoticzDevices[ unit ].Type
+    Subtype = self.domoticzDevices[ unit ].SubType
+    SwitchType = self.domoticzDevices[ unit ].SwitchType
+
+    if ( Type, Subtype, SwitchType ) in MATRIX_TYPENAME:
+        Domoticz.Debug("(%s,%s,%s) matching with %s" %(Type, Subtype, SwitchType, MATRIX_TYPENAME[  ( Type, Subtype, SwitchType ) ]))
+        return MATRIX_TYPENAME[  ( Type, Subtype, SwitchType ) ]
+
+    return None
+    
+
+def device_list_units( self, device_ieee):
+    return [ x for x in self.domoticzDevices if self.domoticzDevices[x].DeviceID == str(device_ieee) ]
+
+def UpdateDevice(self, Unit, nValue, sValue ):
+
+    Domoticz.Debug("UpdateDevice - Unit: %s %s:%s" %(Unit, nValue, sValue))
+
+    # Make sure that the Domoticz device still exists (they can be deleted) before updating it
+    if Unit not in self.domoticzDevices:
+        Domoticz.Error("UpdateDevice Unit %s not found!" %Unit)
+        return
+
+    if (self.domoticzDevices[Unit].nValue == nValue) and (self.domoticzDevices[Unit].sValue == sValue):
+        return
+
+    Domoticz.Log("UpdateDevice %s %s:%s" %(self.domoticzDevices[Unit].Name, nValue, sValue))
+    self.domoticzDevices[Unit].Update( nValue=nValue, sValue=sValue)
+
+
+
 def domoCreateDevice( self, device_ieee, device_signature):
 
-    Domoticz.Log("device_signature: %s" %device_signature)
+    Domoticz.Debug("device_signature: %s" %device_signature)
     for ep in device_signature:
         
-        Domoticz.Log(" --> ep: %s" %ep)
+        Domoticz.Debug(" --> ep: %s" %ep)
         in_cluster = device_signature[ep]['in_clusters']
-        Domoticz.Log("--> IN Cluster: %s" %(in_cluster))
+        Domoticz.Debug("--> IN Cluster: %s" %(in_cluster))
         for cluster in in_cluster:
-            Domoticz.Log("----> Cluster: %s" %cluster)
+            Domoticz.Debug("----> Cluster: %s" %cluster)
             widget_type = get_type_from_cluster( cluster )
-            Domoticz.Log("---------> Widget Type: %s" %widget_type)
+            Domoticz.Debug("---------> Widget Type: %s" %widget_type)
 
             if widget_type is None:
                 continue
         
             elif widget_type == 'Switch':
-                Domoticz.Log("----> Create Switch")
+                Domoticz.Debug("----> Create Switch")
                 createDomoticzWidget( self, device_ieee, ep, widget_type, widgetType='Light/Switch')
 
             elif widget_type == 'Lux':
-                Domoticz.Log("----> Create Lux")
+                Domoticz.Debug("----> Create Lux")
                 createDomoticzWidget( self, device_ieee, ep, widget_type, widgetType='Lux')
                 
             elif widget_type == 'Motion':
-                Domoticz.Log("----> Create Motion")
+                Domoticz.Debug("----> Create Motion")
                 createDomoticzWidget( self, device_ieee, ep, widget_type, widgetType='Motion')
  
-
 def createDomoticzWidget( self, ieee, ep, cType, widgetType = None,
                          Type_ = None, Subtype_ = None, Switchtype_ = None ): 
 
-    Domoticz.Log("createDomoticzWidget")
+    Domoticz.Debug("createDomoticzWidget")
     unit = getFreeUnit(self)
-    Domoticz.Log("--> Unit: %s" %unit)
+    Domoticz.Debug("--> Unit: %s" %unit)
     widgetName = '%s %s - %s' %(widgetType, ieee, ep )
-    Domoticz.Log("--> widgetName: %s" %widgetName)
+    Domoticz.Debug("--> widgetName: %s" %widgetName)
     if widgetType:
         Domoticz.Log("Creating device is Domoticz DeviceID:%s Name: %s Unit: %s TypeName: %s" %(ieee, widgetName, unit, widgetType))
         myDev = Domoticz.Device( DeviceID = str(ieee), Name = widgetName, Unit = unit, TypeName = widgetType )
@@ -433,13 +500,12 @@ def createDomoticzWidget( self, ieee, ep, cType, widgetType = None,
         if myDev.ID == -1 :
             Domoticz.Error("Domoticz widget creation failed. Check that Domoticz can Accept New Hardware [%s]" %myDev )
 
-
 def getFreeUnit(self, nbunit_=1):
     '''
     FreeUnit
     Look for a Free Unit number. If nbunit > 1 then we look for nbunit consecutive slots
     '''
-    Domoticz.Log("getFreeUnit - Devices: %s" %len(self.domoticzDevices))
+    Domoticz.Debug("getFreeUnit - Devices: %s" %len(self.domoticzDevices))
     return len(self.domoticzDevices) + 1
 
 def get_type_from_cluster( cluster ):
@@ -497,10 +563,9 @@ def DumpConfigToLog():
             Domoticz.Debug( "'" + x + "':'" + str(Parameters[x]) + "'")
     Domoticz.Log("Device count: " + str(len(Devices)))
     for x in Devices:
-        Domoticz.Log("Device:           " + str(x) + " - " + str(Devices[x]))
-        Domoticz.Log("Device ID:       '" + str(Devices[x].ID) + "'")
-        Domoticz.Log("Device Name:     '" + Devices[x].Name + "'")
-        Domoticz.Log("Device nValue:    " + str(Devices[x].nValue))
-        Domoticz.Log("Device sValue:   '" + Devices[x].sValue + "'")
-        Domoticz.Log("Device LastLevel: " + str(Devices[x].LastLevel))
-    return
+        Domoticz.Debug("Device:           " + str(x) + " - " + str(Devices[x]))
+        Domoticz.Debug("Device ID:       '" + str(Devices[x].ID) + "'")
+        Domoticz.Debug("Device Name:     '" + Devices[x].Name + "'")
+        Domoticz.Debug("Device nValue:    " + str(Devices[x].nValue))
+        Domoticz.Debug("Device sValue:   '" + Devices[x].sValue + "'")
+        Domoticz.Debug("Device LastLevel: " + str(Devices[x].LastLevel))
