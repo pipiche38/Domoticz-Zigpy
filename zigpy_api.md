@@ -1,4 +1,4 @@
-# Document Zigpy hoow-to
+# Document Zigpy how-to
 
 
 ## Application 
