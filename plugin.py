@@ -118,7 +118,7 @@ class MainListener:
         """
         LOGGER.info("Device is ready: new=%s, device=%s NwkId: %s IEEE: %s signature=%s", new, device, device.nwk, device._ieee, device.get_signature())
         
-        if device.nwk != 0x0000 and len( device.get_signature()) > 0:     
+        if new and device.nwk != 0x0000 and len( device.get_signature()) > 0:     
             domoCreateDevice( self, device._ieee, device.get_signature() )
 
         for ep_id, endpoint in device.endpoints.items():
@@ -172,8 +172,6 @@ async def main( self ):
     else:
         Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode1"])
         return
-
-
 
     listener = MainListener( self.zigpyApp, self.domoticzDevices )
     self.zigpyApp.add_listener(listener)
