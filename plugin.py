@@ -95,29 +95,26 @@ class MainListener:
     Contains callbacks that zigpy will call whenever something happens.
     Look for `listener_event` in the Zigpy source or just look at the logged warnings.
     """
-
     def __init__(self, application, Devices):
         Domoticz.Log("MainListener init App: %s Devices: %s" %(application, Devices))
         self.application = application
         self.domoticzDevices = Devices
 
     def device_joined(self, device):
-        Domoticz.Debug(f"Device joined: {device}")
+        Domoticz.Log(f"Device joined: {device}")
         Domoticz.Debug(" - NwkId: %s" %device.nwk)
         Domoticz.Debug(" - IEEE: %s" %device._ieee)
 
 
-    def device_initialized(self, device, *, new=True):
-        """
-        Called at runtime after a device's information has been queried.
-        I also call it on startup to load existing devices from the DB.
+    def device_announce(self, zigpy_device):
+        Domoticz.Log("device_announce Zigpy Device: %s" %(zigpy_device))
 
-        Example:
-        INFO:plugin:Device is ready: new=True, device=<zhaquirks.xiaomi.aqara.motion_aq2.MotionAQ2 object at 0xac2af1c0> 
-            signature={1: {'in_clusters': [0, 1, 3, 1024, 1030, 1280, 65535], 'out_clusters': [0, 25]}}
-        """
-        LOGGER.info("Device is ready: new=%s, device=%s NwkId: %s IEEE: %s signature=%s", new, device, device.nwk, device._ieee, device.get_signature())
-        
+
+    def device_initialized(self, device, *, new=True):
+        # Called at runtime after a device's information has been queried.
+        # I also call it on startup to load existing devices from the DB.
+
+        LOGGER.info("Device is ready: new=%s, device=%s NwkId: %s IEEE: %s signature=%s", new, device, device.nwk, device._ieee, device.get_signature())   
         if new and device.nwk != 0x0000 and len( device.get_signature()) > 0:     
             domoCreateDevice( self, device._ieee, device.get_signature() )
 
@@ -131,6 +128,21 @@ class MainListener:
                 # The context listener passes its own object as the first argument
                 # to the callback
                 cluster.add_context_listener(self)
+
+    #def device_left(self, device):
+    #    pass
+
+
+    #def device_removed(self, device):
+    #    pass
+
+
+    def cluster_command(self, cluster, command_id, *args):
+        #Handle commands received to this cluster.
+        # Each object is linked to its parent (i.e. app > device > endpoint > cluster)
+        device = cluster.endpoint.device
+        Domoticz.Log("cluster_command - Cluster: %s ClusterId: 0x%04x command_id: %s args: %s" %(cluster, cluster.cluster_id, command_id, args))
+
 
     def attribute_updated(self, cluster, attribute_id, value):
         # Each object is linked to its parent (i.e. app > device > endpoint > cluster)
@@ -267,7 +279,7 @@ class BasePlugin:
 
 def domoMajDevice( self, device_ieee, cluster, attribute_id, value ):
 
-    Domoticz.Debug("domoMajDevice - Device_ieee: %s cluster: %s attribute_id: %s value: %s" %(device_ieee, cluster, attribute_id, value))
+    Domoticz.Log("domoMajDevice - Device_ieee: %s cluster: %s attribute_id: %s value: %s" %(device_ieee, cluster, attribute_id, value))
     needed_widget_type = get_type_from_cluster( cluster )
 
     Domoticz.Debug("---> Cluster to Widget: %s" %needed_widget_type)
@@ -275,7 +287,6 @@ def domoMajDevice( self, device_ieee, cluster, attribute_id, value ):
         return
 
     for unit in device_list_units( self, device_ieee):
-
         if needed_widget_type != get_TypeName_from_device( self, unit ):
             continue
 
@@ -295,11 +306,21 @@ def domoMajDevice( self, device_ieee, cluster, attribute_id, value ):
                 sValue = 'Off'
             UpdateDevice(self, unit, nValue, sValue )
 
+        elif needed_widget_type == 'Switch' and attribute_id == 0x0000:
+            if bool(value):
+                nValue = 1
+                sValue = 'On'
+            else:
+                nValue = 0
+                sValue = 'Off'
+            UpdateDevice(self, unit, nValue, sValue )
+
 def get_TypeName_from_device( self, unit):
     
     MATRIX_TYPENAME = {
-        (243,0,0): "Lux",
+        (246,1,0): "Lux",
         (244,73,8): "Motion",
+        (244,73,0): "Switch", 
     }
 
     Type = self.domoticzDevices[ unit ].Type
@@ -331,8 +352,6 @@ def UpdateDevice(self, Unit, nValue, sValue ):
     Domoticz.Log("UpdateDevice %s %s:%s" %(self.domoticzDevices[Unit].Name, nValue, sValue))
     self.domoticzDevices[Unit].Update( nValue=nValue, sValue=sValue)
 
-
-
 def domoCreateDevice( self, device_ieee, device_signature):
 
     Domoticz.Debug("device_signature: %s" %device_signature)
@@ -340,8 +359,8 @@ def domoCreateDevice( self, device_ieee, device_signature):
         
         Domoticz.Debug(" --> ep: %s" %ep)
         in_cluster = device_signature[ep]['in_clusters']
-        Domoticz.Debug("--> IN Cluster: %s" %(in_cluster))
-        for cluster in in_cluster:
+        out_cluster = device_signature[ep]['out_clusters']
+        for cluster in set(in_cluster+out_cluster):
             Domoticz.Debug("----> Cluster: %s" %cluster)
             widget_type = get_type_from_cluster( cluster )
             Domoticz.Debug("---------> Widget Type: %s" %widget_type)
@@ -350,12 +369,12 @@ def domoCreateDevice( self, device_ieee, device_signature):
                 continue
         
             elif widget_type == 'Switch':
-                Domoticz.Debug("----> Create Switch")
-                createDomoticzWidget( self, device_ieee, ep, widget_type, widgetType='Light/Switch')
+                Domoticz.Log("----> Create Switch")
+                createDomoticzWidget( self, device_ieee, ep, widget_type, Type_ = 244, Subtype_ = 73, Switchtype_ = 0 )
 
             elif widget_type == 'Lux':
                 Domoticz.Debug("----> Create Lux")
-                createDomoticzWidget( self, device_ieee, ep, widget_type, widgetType='Lux')
+                createDomoticzWidget( self, device_ieee, ep, widget_type, Type_ = 246, Subtype_ = 1, Switchtype_ = 0 )
                 
             elif widget_type == 'Motion':
                 Domoticz.Debug("----> Create Motion")
@@ -372,10 +391,20 @@ def createDomoticzWidget( self, ieee, ep, cType, widgetType = None,
     if widgetType:
         Domoticz.Log("Creating device is Domoticz DeviceID:%s Name: %s Unit: %s TypeName: %s" %(ieee, widgetName, unit, widgetType))
         myDev = Domoticz.Device( DeviceID = str(ieee), Name = widgetName, Unit = unit, TypeName = widgetType )
-        myDev.Create()
-        ID = myDev.ID
-        if myDev.ID == -1 :
-            Domoticz.Error("Domoticz widget creation failed. Check that Domoticz can Accept New Hardware [%s]" %myDev )
+
+    elif Type_ is not None and Subtype_ is not None and Switchtype_ is not None:
+        myDev = Domoticz.Device( DeviceID = str(ieee), Name = widgetName, Unit = unit, Type = Type_, Subtype = Subtype_, Switchtype = Switchtype_ )
+
+    else:
+        Domoticz.Error("createDomoticzWidget cannot create widget for %s" %(widgetName))
+        return
+    
+    myDev.Create()
+    ID = myDev.ID
+    if myDev.ID == -1 :
+        Domoticz.Error("Domoticz widget creation failed. Check that Domoticz can Accept New Hardware [%s]" %myDev )
+
+
 
 def getFreeUnit(self, nbunit_=1):
     '''

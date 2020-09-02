@@ -26,6 +26,13 @@
         self.zigpyApp.add_listener(listener)self.zigpyApp.add_listener(listener)
         ````
 
+    3. Create a listner on each Cluster of each Device
+        In order to receive the event from each device, you have to create a listner for each cluster of the device
+
+    4. For IAS clusters, it needs to have cluster_command()
+        Do not understand that one
+        https://github.com/zigpy/zha-device-handlers/issues/469#issuecomment-685153282
+
 ### Define a class MainListener
 
     This is were you will be able to catch most of the events like:
