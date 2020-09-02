@@ -8,6 +8,14 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
 
 - <https://github.com/zigpy/zigpy>
 
+## LIMITATIONS
+
+* Currently Zigpy librarry do not provide to interact directly with the hardware (Zigbee radio). For instance in the context of the ZiGate
+  * Not posibility to reset the PDM and erase the all memory. That is a shame as this is quiet convenient to get a clean situation
+  * No access to the Led control
+  * No access to the Certification CE or FCC
+  * No access to the Power/Energy level 
+
 ## WARNING
 
 For now there are a number of show stoppers to go forward:
