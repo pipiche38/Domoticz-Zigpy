@@ -8,6 +8,23 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
 
 - <https://github.com/zigpy/zigpy>
 
+## WARNING
+
+For now there are a number of show stoppers to go forward:
+
+   * Domoticz issue, there are some conflict around SQLITE3 usage [Issue #4312](https://github.com/domoticz/domoticz/issues/4312)
+   * Zigpy library and quirk are developped for Home Automation with no documentation on how to use. These are very focus on the HA design. Using Zigpy on Domoticz required a lot of work at that stage :
+      1. Understand how to use zigpy
+      1. Understand what to do in order to have a correct setup (inside the plugin) to get all events from devices
+
+Unfortunatly at that stage, I'm not able to move forward:
+
+1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
+1. Required a lot of time to be spent in order to understand how the zigpy library .
+
+
+## Details on the Zigpy project
+
 This project as such will rely on multiple radio libraries from the zigpy project as a dependency to interface with Zigbee radios which all aim to provide a coherent and consistent API in order among them to make it easier for integrations to support multiple adapters for different hardware manufacturers. For now though it is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
 
 - [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/zigpy/bellows)
