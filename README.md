@@ -30,22 +30,6 @@ Unfortunatly at that stage, I'm not able to move forward:
 1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
 1. Required a lot of time to be spent in order to understand how the zigpy library .
 
-
-## Details on the Zigpy project
-
-This project as such will rely on multiple radio libraries from the zigpy project as a dependency to interface with Zigbee radios which all aim to provide a coherent and consistent API in order among them to make it easier for integrations to support multiple adapters for different hardware manufacturers. For now though it is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
-
-- [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/zigpy/bellows)
-- [zigpy-cc - zigpy radio library supporting older Texas Instruments Z-Stack (CC253x) based Zigbee radios](https://github.com/zigpy/zigpy-cc)
-- [zigpy-deconz - zigpy radio library supporting dresden dlektronik deCONZ (ConBee and RaspBee) based Zigbee radios](https://github.com/zigpy/zigpy-deconz)
-- [zigpy-xbee - zigpy radio library supporting XBee based Zigbee radios](https://github.com/zigpy/zigpy-xbee)
-- [zigpy-zigate - zigpy radio library supporting ZiGate based Zigbee radios](https://github.com/zigpy/zigpy-zigate)
-- [zigpy-znp - zigpy radio library supporting newer Texas Instruments Z-Stack (CC2652 and CC1352) based Zigbee radios](https://github.com/zha-ng/zigpy-znp)
-
-It addition it will utilize the zha-device-handlers (a.k.a. zha-quirks) library from the zigpy project as a dependency as it will act as a tranaslator to try to handle individual Zigbee device exception and deviation handling for those Zigbee devices that do not fully conform to the standard specifications set by the Zigbee Alliance.
-
-- <https://github.com/zigpy/zha-device-handlers>
-
 ## Design Principle
 
 As of the ZiGate plugin, Domoticz Widgets will be created based on the Zigbee device capabilities. Most likely the device signature from a Zigpy standpoint. Basically based on the Cluster list by device.
@@ -85,3 +69,30 @@ Will most-likely required a Web Admin page in order to :
 1. How to handle Device provisioning ? End to End
 
 1. Would it be possible to migrate Zigate users from Domoticz-Zigate plugin to Domoticz-Zigpy plugin ? From a pure HW perspective the ZiGate doesn't really care of who is using it. From a plugin standpoinit it might be interested to see if from the ZiGate plugin we could populate the Zigpy database ?
+
+
+## Details on the Zigpy project
+
+This project as such will rely on multiple radio libraries from the zigpy project as a dependency to interface 
+with Zigbee radios which all aim to provide a coherent and consistent API in order among them to make it 
+easier for integrations to support multiple adapters for different hardware manufacturers. For now though it 
+is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
+
+- [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/
+zigpy/bellows)
+- [zigpy-cc - zigpy radio library supporting older Texas Instruments Z-Stack (CC253x) based Zigbee radios]
+(https://github.com/zigpy/zigpy-cc)
+- [zigpy-deconz - zigpy radio library supporting dresden dlektronik deCONZ (ConBee and RaspBee) based Zigbee 
+radios](https://github.com/zigpy/zigpy-deconz)
+- [zigpy-xbee - zigpy radio library supporting XBee based Zigbee radios](https://github.com/zigpy/zigpy-xbee)
+- [zigpy-zigate - zigpy radio library supporting ZiGate based Zigbee radios](https://github.com/zigpy/
+zigpy-zigate)
+- [zigpy-znp - zigpy radio library supporting newer Texas Instruments Z-Stack (CC2652 and CC1352) based Zigbee 
+radios](https://github.com/zha-ng/zigpy-znp)
+
+It addition it will utilize the zha-device-handlers (a.k.a. zha-quirks) library from the zigpy project as a 
+dependency as it will act as a tranaslator to try to handle individual Zigbee device exception and deviation 
+handling for those Zigbee devices that do not fully conform to the standard specifications set by the Zigbee 
+Alliance.
+
+- <https://github.com/zigpy/zha-device-handlers>
