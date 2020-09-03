@@ -15,6 +15,7 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
   * No access to the Led control
   * No access to the Certification CE or FCC
   * No access to the Power/Energy level 
+  * No access to ZiGate reset ( which is quiet convenient when hang). The reset allow to reboot the Zigbee stack of the zigate without any break.
   
 
 ## WARNING
