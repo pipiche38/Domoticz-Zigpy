@@ -8,6 +8,15 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
 
 - <https://github.com/zigpy/zigpy>
 
+## TO BE ADDRESSED
+
+* [IMPORTANT] Performances. The proof of concept has been developped with a LUMI Motion Sensor. This communicate 2 events ( Motion detection via Cluster 0x0406 and Illuminence via cluster 0x0400 ). 
+  * This is using the Quirk part, and I do not fully understand how it works (especially in regards to that issue https://github.com/zigpy/zha-device-handlers/issues/469 - Do not understand what Cluster IAS shoudl do here !)
+  * But in general I found the performance not as expected. Quiet some lag between the Motion and the event reported into the plugin layer (not the domoticz itself). The lag could be at several levels:
+    * zigpy-zigate as the implementation is quiet early
+    * a difference between the asyncio and the all zigpy stack in comparaison with the zigate plugin which is fully asynchrone with no waiting and synchronisation mecanism. From what I have measured with the zigate plugin the delay between receiving a message from the UART and getting the update on Domoticz widget is around 3ms. Here I have the impression that an important lag  between a motion should be detected, and the time the motion is seen by the app layer .
+  * I had the impression that doing 2 pairing at the same time could be problematic - but need to be checked again, as I do not see why -
+
 ## LIMITATIONS
 
 * Currently Zigpy librarry do not provide to interact directly with the hardware (Zigbee radio). For instance in the context of the ZiGate
@@ -35,7 +44,6 @@ For now there are a number of show stoppers to go forward:
    * The Zigate layer is not really mature and is at an early stage. That mean that we wouldn't have such integration level with ZiGate as we have currently with the ZiGate plugin for Domoticz.
    
    
-
 Unfortunatly at that stage, I'm not able to move forward:
 
 1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
