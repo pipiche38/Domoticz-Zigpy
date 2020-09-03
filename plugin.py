@@ -200,7 +200,7 @@ async def main( self ):
             config=ControllerApplication.SCHEMA({
                 "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
                 "device": {
-                    "config_for_port_path":path
+                    "path":path
                 }
             }),
             auto_form=True,
@@ -209,7 +209,7 @@ async def main( self ):
 
     elif self.domoticzParameters["Mode1"] == 'bellows':
         from bellows.zigbee.application import ControllerApplication
-        
+
         path = self.domoticzParameters["SerialPort"]
         if not await ControllerApplication.probe({"path": path}):
             Domoticz.Error("Controller cannot be reached at %s" %path)

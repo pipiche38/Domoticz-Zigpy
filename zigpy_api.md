@@ -41,6 +41,57 @@
     * When a device is initialized (Called at runtime after a device's information has been queried.): device_initialized(self, device, *, new=True)
     * When an object send an update (attribute report or attribute read response): attribute_updated(self, cluster, attribute_id, value)
 
+## Configuration SCHEMA
+
+* CONF_DATABASE = "database_path"
+  path to access the persistent database (sqlite3)
+
+* CONF_DEVICE = "device"
+
+* CONF_DEVICE_PATH = "path"
+  path to access the device controler (can be a serial line, IP )
+
+* CONF_NWK = "network"
+  ???
+* CONF_NWK_CHANNEL = "channel"
+  I guess this is the channel to be use
+
+* CONF_NWK_CHANNELS = "channels"
+  I guess this is a possible list of channel to be selected by the controller ?
+
+* CONF_NWK_EXTENDED_PAN_ID = "extended_pan_id"
+  allow to specify the extended_pam_id (with Zigate it is only possible after an Erase PDM at Network Setup)
+
+* CONF_NWK_PAN_ID = "pan_id"
+  allow to specify the PANID (in Zigate this is not authorized)
+
+* CONF_NWK_KEY = "key"
+  ???
+
+* CONF_NWK_KEY_SEQ = "key_sequence_number"
+  ???
+
+* CONF_NWK_TC_ADDRESS = "tc_address"
+  ???
+
+* CONF_NWK_TC_LINK_KEY = "tc_link_key"
+  ???
+
+* CONF_NWK_UPDATE_ID = "update_id"
+  ???
+
+* CONF_OTA = "ota"
+  ???
+
+* CONF_OTA_DIR = "otau_directory"
+  Where to find the OTA Firmware
+
+* CONF_OTA_IKEA = "ikea_provider"
+  ???
+
+* CONF_OTA_LEDVANCE = "ledvance_provider"
+  ???
+
 
 # zigpy APIs
 
@@ -58,6 +109,10 @@
 * node_descriptor_updated
 * device_init_failure
 * device_relays_updated
+
+* get_signature
+  Provide as a python Dictionnary , an Ep list and associated cluster In and Out. Unfortunatly do not provide more like Model Name, Manufacturer Code, Manufacturer Name ....
+  
 
 ## Endpoint
 
