@@ -24,7 +24,9 @@
     <params>
         <param field="Mode1" label="HW Model" width="75px" required="true" default="None">
             <options>
-                <option label="ZiGate" value="ZiGate" default="None" />
+                <option label="zigpy-zigate (ZiGate controller)" value="zigpy-zigate" default="None" />
+                <option label="zigpy-znp (Texas Instruments ZNP)" value="zigpy-znp" default="None" />
+                <option label="bellows" value="bellows (Silicon Labs EM35x ('Ember') and EFR32 ('Mighty Gecko') )" default="None" />
             </options>
         </param>
 
@@ -158,7 +160,9 @@ async def main( self ):
     import zhaquirks  # noqa: F401
 
     # Instantiate with the corresponding Zigbee Radio
-    if self.domoticzParameters["Mode1"] == 'ZiGate':
+    if self.domoticzParameters["Mode1"] == 'zigpy-zigate':
+        from zigpy_zigate.zigbee.application import ControllerApplication
+
         if self.domoticzParameters["Mode2"] in ( 'USB', 'DIN'):
             path = self.domoticzParameters["SerialPort"]
 
@@ -169,12 +173,53 @@ async def main( self ):
             Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode2"])
             return
 
-        from zigpy_zigate.zigbee.application import ControllerApplication
+        if not await ControllerApplication.probe({"path": path}):
+            Domoticz.Error("Controller cannot be reached at %s" %path)
+            return
+
         self.zigpyApp = await ControllerApplication.new(
             config=ControllerApplication.SCHEMA({
                 "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
                 "device": {
                     "path": path,
+                }
+            }),
+            auto_form=True,
+            start_radio=True,
+        )
+
+    elif self.domoticzParameters["Mode1"] == 'zigpy-znp':
+        from zigpy_znp.zigbee.application import ControllerApplication
+
+        path = self.domoticzParameters["SerialPort"]
+        if not await ControllerApplication.probe({"path": path}):
+            Domoticz.Error("Controller cannot be reached at %s" %path)
+            return
+
+        self.zigpyApp = await ControllerApplication.new(
+            config=ControllerApplication.SCHEMA({
+                "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
+                "device": {
+                    "config_for_port_path":path
+                }
+            }),
+            auto_form=True,
+            start_radio=True,
+        )
+
+    elif self.domoticzParameters["Mode1"] == 'bellows':
+        from bellows.zigbee.application import ControllerApplication
+        
+        path = self.domoticzParameters["SerialPort"]
+        if not await ControllerApplication.probe({"path": path}):
+            Domoticz.Error("Controller cannot be reached at %s" %path)
+            return
+
+        self.zigpyApp = await ControllerApplication.new(
+            config=ControllerApplication.SCHEMA({
+                "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
+                "device": {
+                    "CONF_DEVICE_PATH":path
                 }
             }),
             auto_form=True,
