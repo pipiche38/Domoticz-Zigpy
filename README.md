@@ -8,6 +8,26 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
 
 - <https://github.com/zigpy/zigpy>
 
+## TO BE ADDRESSED
+
+* [IMPORTANT] Performances. The proof of concept has been developped with a LUMI Motion Sensor. This communicate 2 events ( Motion detection via Cluster 0x0406 and Illuminence via cluster 0x0400 ). 
+  * This is using the Quirk part, and I do not fully understand how it works (especially in regards to that issue https://github.com/zigpy/zha-device-handlers/issues/469 - Do not understand what Cluster IAS shoudl do here !)
+  * But in general I found the performance not as expected. Quiet some lag between the Motion and the event reported into the plugin layer (not the domoticz itself). The lag could be at several levels:
+    * zigpy-zigate as the implementation is quiet early
+    * a difference between the asyncio and the all zigpy stack in comparaison with the zigate plugin which is fully asynchrone with no waiting and synchronisation mecanism. From what I have measured with the zigate plugin the delay between receiving a message from the UART and getting the update on Domoticz widget is around 3ms. Here I have the impression that an important lag  between a motion should be detected, and the time the motion is seen by the app layer .
+  * I had the impression that doing 2 pairing at the same time could be problematic - but need to be checked again, as I do not see why -
+
+* zigpy provides a method call get_signature() which is available on the device object and provide a "device signature". In other words it gives in a python dictionary format informations like:
+  * List of Endpoints
+  * List of Cluster In and CLuster Out for each Endpoint
+  
+  I found the information usefull, but too restrictive in regards of a device. For instance if get_signature() could returned information like:
+    * Model Name (provided by Cluster 0x0000 Attribute 0x0005 )
+    * Manufacturer Code
+    * Manufacturer Name
+    * DeviceID (which is EndPoint based) and which can give information on the purpose of the device
+    
+
 ## LIMITATIONS
 
 * Currently Zigpy librarry do not provide to interact directly with the hardware (Zigbee radio). For instance in the context of the ZiGate
@@ -15,6 +35,8 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
   * No access to the Led control
   * No access to the Certification CE or FCC
   * No access to the Power/Energy level 
+  * No access to ZiGate reset ( which is quiet convenient when hang). The reset allow to reboot the Zigbee stack of the zigate without any break.
+  
 
 ## WARNING
 
@@ -24,11 +46,21 @@ For now there are a number of show stoppers to go forward:
    * Zigpy library and quirk are developped for Home Automation with no documentation on how to use. These are very focus on the HA design. Using Zigpy on Domoticz required a lot of work at that stage :
       1. Understand how to use zigpy
       1. Understand what to do in order to have a correct setup (inside the plugin) to get all events from devices
-
+      
+   * Zigpy has not a lot of manufacturer device support. During my work on the proof of concept, quiet a number of the devices that I'm using often for my devlopement and tests where not full supported and created error messages. The end result would be for the current ZiGat users a lack of supported devices.
+      * Aqara Opple Switches not supported
+      * Xiaomi Vibration making errors
+      * Legrand devices not supported (leave the network after a while )
+   
+   * The Zigate layer is not really mature and is at an early stage. That mean that we wouldn't have such integration level with ZiGate as we have currently with the ZiGate plugin for Domoticz.
+   
+   
 Unfortunatly at that stage, I'm not able to move forward:
 
 1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
 1. Required a lot of time to be spent in order to understand how the zigpy library .
+
+
 
 ## Design Principle
 
