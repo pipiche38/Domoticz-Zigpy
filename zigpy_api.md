@@ -2,36 +2,41 @@
 
 ## Principles
 
-    1. Create a Persistent object to store all activities. Attention the API will be based on the zigpy-<hardware> layer you are going to use.
-        * F
-            ```
-            import zigpy.config as conf
+    1. Create a Persistent object to store all activities and get connected to a radio hardware. 
 
-            # For zigate you will replace radio by zigpy-radio, 
-            # For Texas Instruments ZNP (Zigbee Network Processors)  you wioll replace radio by zigpy-znp
-            from radio import ControllerApplication
+       You need for that to simply import the Radio ControllerApplication
+       Then you need to set at least the path to the Database and the path to access the Radio hardware.
+       After that just instantiate the ControllerApplication.
+       
 
-            # Config required to connect to a given device
-            device_config = {
-                conf.CONF_DEVICE_PATH: "/dev/ttyUSB0",
-            }
+        ```
+        import zigpy.config as conf
 
-            # Config required to setup zigpy
-            zigpy_config = {
-                conf.CONF_DATABASE: "/tmp/zigpy.db",
-                conf.CONF_DEVICE: device_config
-            }
+        # For zigate you will replace radio by zigpy-radio, 
+        # For Texas Instruments ZNP (Zigbee Network Processors)  you wioll replace radio by zigpy-znp
+        from radio import ControllerApplication
 
-            # This is unnecessary unless you want to autodetect the radio module that will work
-            # with a given port
-            #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
+        # Config required to connect to a given device
+        device_config = {
+            conf.CONF_DEVICE_PATH: "/dev/ttyUSB0",
+        }
 
-            app = await ControllerApplication.new(
-                config=ControllerApplication.SCHEMA(zigpy_config),
-                auto_form=True,
-                start_radio=True,
-            )
-            ```
+        # Config required to setup zigpy
+        zigpy_config = {
+            conf.CONF_DATABASE: "/tmp/zigpy.db",
+            conf.CONF_DEVICE: device_config
+        }
+
+        # This is unnecessary unless you want to autodetect the radio module that will work
+        # with a given port
+        #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
+
+        app = await ControllerApplication.new(
+            config=ControllerApplication.SCHEMA(zigpy_config),
+            auto_form=True,
+            start_radio=True,
+        )
+        ```
 
 
     2. Create the Zigbee listner : 
