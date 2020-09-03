@@ -2,63 +2,62 @@
 
 ## Principles
 
-    1. Create a Persistent object to store all activities and get connected to a radio hardware. 
+1. Create a Persistent object to store all activities and get connected to a radio hardware.
 
-       You need for that to simply import the Radio ControllerApplication
-       Then you need to set at least the path to the Database and the path to access the Radio hardware.
-       After that just instantiate the ControllerApplication.
-       
+    You need for that to simply import the Radio ControllerApplication
+    Then you need to set at least the path to the Database and the path to access the Radio hardware.
+    After that just instantiate the ControllerApplication.
 
-        ```
-        import zigpy.config as conf
+    ```python
+    import zigpy.config as conf
 
-        # For zigate you will replace radio by zigpy-radio, 
-        # For Texas Instruments ZNP (Zigbee Network Processors)  you wioll replace radio by zigpy-znp
-        from radio import ControllerApplication
+    # For zigate you will replace radio by zigpy-radio,
+    # For Texas Instruments ZNP (Zigbee Network Processors)  you wioll replace radio by zigpy-znp
+    from radio import ControllerApplication
 
-        # Config required to connect to a given device
-        device_config = {
-            conf.CONF_DEVICE_PATH: "/dev/ttyUSB0",
-        }
+    # Config required to connect to a given device
+    device_config = {
+        conf.CONF_DEVICE_PATH: "/dev/ttyUSB0",
+    }
 
-        # Config required to setup zigpy
-        zigpy_config = {
-            conf.CONF_DATABASE: "/tmp/zigpy.db",
-            conf.CONF_DEVICE: device_config
-        }
+    # Config required to setup zigpy
+    zigpy_config = {
+        conf.CONF_DATABASE: "/tmp/zigpy.db",
+        conf.CONF_DEVICE: device_config
+    }
 
-        # This is unnecessary unless you want to autodetect the radio module that will work
-        # with a given port
-        #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
+    # This is unnecessary unless you want to autodetect the radio module that will work
+    # with a given port
+    #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
 
-        app = await ControllerApplication.new(
-            config=ControllerApplication.SCHEMA(zigpy_config),
-            auto_form=True,
-            start_radio=True,
-        )
-        ```
+    app = await ControllerApplication.new(
+        config=ControllerApplication.SCHEMA(zigpy_config),
+        auto_form=True,
+        start_radio=True,
+    )
+    ```
 
+1. Create the Zigbee listner :
 
-    2. Create the Zigbee listner : 
-        ```
-        listener = MainListener( zigpyApp )
-        self.zigpyApp.add_listener(listener)self.zigpyApp.add_listener(listener)
-        ````
+    ```python3
+    listener = MainListener( zigpyApp )
+    self.zigpyApp.add_listener(listener)self.zigpyApp.add_listener(listener)
+    ````
 
-    3. Create a listner on each Cluster of each Device
-        In order to receive the event from each device, you have to create a listner for each cluster of the device
+1. Create a listner on each Cluster of each Device
+    In order to receive the event from each device, you have to create a listner for each cluster of the device
 
-    4. For IAS clusters, it needs to have cluster_command()
-        Do not understand that one
-        https://github.com/zigpy/zha-device-handlers/issues/469#issuecomment-685153282
+1. For IAS clusters, it needs to have cluster_command()
+    Do not understand that one
+    <https://github.com/zigpy/zha-device-handlers/issues/469#issuecomment-685153282>
 
 ### Define a class MainListener
 
-    This is were you will be able to catch most of the events like:
+This is were you will be able to catch most of the events like:
 
-    * When a device joined: def device_joined(self, device)
-    * When a device is initialized (Called at runtime after a device's information has been queried.): device_initialized(self, device, *, new=True)
-    * When an object send an update (attribute report or attribute read response): attribute_updated(self, cluster, attribute_id, value)
+* When a device joined: def device_joined(self, device)
+* When a device is initialized (Called at runtime after a device's information has been queried.): device_initialized(self, device, *, new=True)
+* When an object send an update (attribute report or attribute read response): attribute_updated(self, cluster, attribute_id, value)
 
 ## Configuration SCHEMA
 
@@ -82,10 +81,9 @@
 | CONF_OTA_IKEA = "ikea_provider"              |  ???                                                            | O |
 | CONF_OTA_LEDVANCE = "ledvance_provider"      | ???                                                             | O |
 
+## zigpy APIs
 
-# zigpy APIs
-
-## Application
+### Application
 
 * raw_device_initialized
 * device_initialized
@@ -94,7 +92,7 @@
 * device_joined
 * device_left
 
-## Device
+### Device
 
 * node_descriptor_updated
 * device_init_failure
@@ -103,21 +101,20 @@
 * get_signature
   Provide as a python Dictionnary , an Ep list and associated cluster In and Out. Unfortunatly do not provide more like Model Name, Manufacturer Code, Manufacturer Name ....
   
-
-## Endpoint
+### Endpoint
 
 * unknown_cluster_message
 * member_added
 * member_removed
 
-## Group
+### Group
 
 * group_added
 * group_member_added
 * group_removed
 * group_removed
 
-## ZCL Commands
+### ZCL Commands
 
 * cluster_command
 * general_command
