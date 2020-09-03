@@ -43,54 +43,41 @@
 
 ## Configuration SCHEMA
 
-* CONF_DATABASE = "database_path"
-  path to access the persistent database (sqlite3)
+| Parameter | Description |
+| --------  | ----------- |
 
-* CONF_DEVICE = "device"
+| CONF_DATABASE = "database_path" |  path to access the persistent database (sqlite3) |
 
-* CONF_DEVICE_PATH = "path"
-  path to access the device controler (can be a serial line, IP )
+| CONF_DEVICE = "device" | 
 
-* CONF_NWK = "network"
-  ???
-* CONF_NWK_CHANNEL = "channel"
-  I guess this is the channel to be use
+| CONF_DEVICE_PATH = "path" | path to access the device controler (can be a serial line, IP )
 
-* CONF_NWK_CHANNELS = "channels"
-  I guess this is a possible list of channel to be selected by the controller ?
+| CONF_NWK = "network" |  ???
+| CONF_NWK_CHANNEL = "channel" | I guess this is the channel to be use
 
-* CONF_NWK_EXTENDED_PAN_ID = "extended_pan_id"
-  allow to specify the extended_pam_id (with Zigate it is only possible after an Erase PDM at Network Setup)
+| CONF_NWK_CHANNELS = "channels" | I guess this is a possible list of channel to be selected by the controller ?
 
-* CONF_NWK_PAN_ID = "pan_id"
-  allow to specify the PANID (in Zigate this is not authorized)
+| CONF_NWK_EXTENDED_PAN_ID = "extended_pan_id" | allow to specify the extended_pam_id (with Zigate it is only possible after an Erase PDM at Network Setup)
 
-* CONF_NWK_KEY = "key"
-  ???
+| CONF_NWK_PAN_ID = "pan_id" | allow to specify the PANID (in Zigate this is not authorized)
 
-* CONF_NWK_KEY_SEQ = "key_sequence_number"
-  ???
+| CONF_NWK_KEY = "key" | ???
 
-* CONF_NWK_TC_ADDRESS = "tc_address"
-  ???
+| CONF_NWK_KEY_SEQ = "key_sequence_number" | ???
 
-* CONF_NWK_TC_LINK_KEY = "tc_link_key"
-  ???
+| CONF_NWK_TC_ADDRESS = "tc_address" | ???
 
-* CONF_NWK_UPDATE_ID = "update_id"
-  ???
+| CONF_NWK_TC_LINK_KEY = "tc_link_key" |  ???
 
-* CONF_OTA = "ota"
-  ???
+| CONF_NWK_UPDATE_ID = "update_id" |  ???
 
-* CONF_OTA_DIR = "otau_directory"
-  Where to find the OTA Firmware
+| CONF_OTA = "ota" |  ???
 
-* CONF_OTA_IKEA = "ikea_provider"
-  ???
+| CONF_OTA_DIR = "otau_directory" |  Where to find the OTA Firmware
 
-* CONF_OTA_LEDVANCE = "ledvance_provider"
-  ???
+| CONF_OTA_IKEA = "ikea_provider" |  ???
+
+| CONF_OTA_LEDVANCE = "ledvance_provider" | ???
 
 
 # zigpy APIs
