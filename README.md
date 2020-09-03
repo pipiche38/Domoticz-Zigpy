@@ -15,6 +15,7 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
   * No access to the Led control
   * No access to the Certification CE or FCC
   * No access to the Power/Energy level 
+  
 
 ## WARNING
 
@@ -24,11 +25,22 @@ For now there are a number of show stoppers to go forward:
    * Zigpy library and quirk are developped for Home Automation with no documentation on how to use. These are very focus on the HA design. Using Zigpy on Domoticz required a lot of work at that stage :
       1. Understand how to use zigpy
       1. Understand what to do in order to have a correct setup (inside the plugin) to get all events from devices
+      
+   * Zigpy has not a lot of manufacturer device support. During my work on the proof of concept, quiet a number of the devices that I'm using often for my devlopement and tests where not full supported and created error messages. The end result would be for the current ZiGat users a lack of supported devices.
+      * Aqara Opple Switches not supported
+      * Xiaomi Vibration making errors
+      * Legrand devices not supported (leave the network after a while )
+   
+   * The Zigate layer is not really mature and is at an early stage. That mean that we wouldn't have such integration level with ZiGate as we have currently with the ZiGate plugin for Domoticz.
+   
+   
 
 Unfortunatly at that stage, I'm not able to move forward:
 
 1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
 1. Required a lot of time to be spent in order to understand how the zigpy library .
+
+
 
 ## Design Principle
 
