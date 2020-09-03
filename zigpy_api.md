@@ -1,6 +1,24 @@
 # Document Zigpy how-to
 
-## Principles
+## Concepts
+
+1. Zigpy principle
+   1. the stack
+   1. the Zigbee radio lib
+   1. the Quirk lib
+
+1. The use of asyncio
+
+1. From device to application (receiving request or attaribute value)
+
+1. From application to device ( sending command or responding to request)
+
+1. ApplicationController Listeners
+
+1. Cluster Event Listeners
+
+
+## Key steps to make it working
 
 1. Create a Persistent object to store all activities and get connected to a radio hardware.
 
@@ -37,7 +55,7 @@
     )
     ```
 
-1. Create the Zigbee listner :
+1. Create the Application Controller listner :
 
     ```python3
     listener = MainListener( zigpyApp )
@@ -121,3 +139,7 @@ This is were you will be able to catch most of the events like:
 * attribute_updated
 * device_announce
 * permit_duration
+
+
+## How to deal with errors
+
