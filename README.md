@@ -17,6 +17,17 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
     * a difference between the asyncio and the all zigpy stack in comparaison with the zigate plugin which is fully asynchrone with no waiting and synchronisation mecanism. From what I have measured with the zigate plugin the delay between receiving a message from the UART and getting the update on Domoticz widget is around 3ms. Here I have the impression that an important lag  between a motion should be detected, and the time the motion is seen by the app layer .
   * I had the impression that doing 2 pairing at the same time could be problematic - but need to be checked again, as I do not see why -
 
+* zigpy provides a method call get_signature() which is available on the device object. The purpose is to provide a "device signature". In other words it gives information like:
+  * List of Endpoints
+  * List of Cluster In and CLuster Out for each Endpoint
+  
+  I found the information usefull, but too restrictive in regards of a device. For instance if get_signature() could returned information like:
+    * Model Name (provided by Cluster 0x0000 Attribute 0x0005 )
+    * Manufacturer Code
+    * Manufacturer Name
+    * DeviceID (which is EndPoint based) and which can give information on the purpose of the device
+    
+
 ## LIMITATIONS
 
 * Currently Zigpy librarry do not provide to interact directly with the hardware (Zigbee radio). For instance in the context of the ZiGate
