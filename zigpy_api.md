@@ -48,7 +48,7 @@
     # with a given port
     #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
 
-    app = await ControllerApplication.new(
+    zigpyApp = await ControllerApplication.new(
         config=ControllerApplication.SCHEMA(zigpy_config),
         auto_form=True,
         start_radio=True,
@@ -59,7 +59,7 @@
 
     ```python3
     listener = MainListener( zigpyApp )
-    self.zigpyApp.add_listener(listener)self.zigpyApp.add_listener(listener)
+    self.zigpyApp.add_listener(listener)
     ````
 
 1. Create a listner on each Cluster of each Device
