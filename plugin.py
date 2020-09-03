@@ -155,80 +155,61 @@ class MainListener:
         domoMajDevice( self, device._ieee, cluster.cluster_id, attribute_id, value )
 
 async def main( self ):
-                                       
+
+    import zigpy.config as conf
     # Make sure that we have the quirks embedded.
     import zhaquirks  # noqa: F401
 
-    # Instantiate with the corresponding Zigbee Radio
     if self.domoticzParameters["Mode1"] == 'zigpy-zigate':
         from zigpy_zigate.zigbee.application import ControllerApplication
-
         if self.domoticzParameters["Mode2"] in ( 'USB', 'DIN'):
             path = self.domoticzParameters["SerialPort"]
 
         elif self.domoticzParameters["Mode2"] == 'PI':
             path = 'pizigate:%s' %self.domoticzParameters["SerialPort"]
-
         else:
             Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode2"])
             return
 
-        if not await ControllerApplication.probe({"path": path}):
-            Domoticz.Error("Controller cannot be reached at %s" %path)
-            return
-
-        self.zigpyApp = await ControllerApplication.new(
-            config=ControllerApplication.SCHEMA({
-                "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
-                "device": {
-                    "path": path,
-                }
-            }),
-            auto_form=True,
-            start_radio=True,
-        )
+        # Config required to connect to a given device
+        device_config = {
+            conf.CONF_DEVICE_PATH: path,
+        }
 
     elif self.domoticzParameters["Mode1"] == 'zigpy-znp':
         from zigpy_znp.zigbee.application import ControllerApplication
-
         path = self.domoticzParameters["SerialPort"]
-        if not await ControllerApplication.probe({"path": path}):
-            Domoticz.Error("Controller cannot be reached at %s" %path)
-            return
-
-        self.zigpyApp = await ControllerApplication.new(
-            config=ControllerApplication.SCHEMA({
-                "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
-                "device": {
-                    "path":path
-                }
-            }),
-            auto_form=True,
-            start_radio=True,
-        )
+        # Config required to connect to a given device
+        device_config = {
+            conf.CONF_DEVICE_PATH: path,
+        }
 
     elif self.domoticzParameters["Mode1"] == 'bellows':
         from bellows.zigbee.application import ControllerApplication
-
         path = self.domoticzParameters["SerialPort"]
-        if not await ControllerApplication.probe({"path": path}):
-            Domoticz.Error("Controller cannot be reached at %s" %path)
-            return
-
-        self.zigpyApp = await ControllerApplication.new(
-            config=ControllerApplication.SCHEMA({
-                "database_path": self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
-                "device": {
-                    "CONF_DEVICE_PATH":path
-                }
-            }),
-            auto_form=True,
-            start_radio=True,
-        )
+        device_config = {
+            conf.CONF_DEVICE_PATH: path,
+        }
 
     else:
         Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode1"])
         return
+
+    # Config required to setup zigpy
+    zigpy_config = {
+        conf.CONF_DATABASE: self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
+        conf.CONF_DEVICE: device_config
+    }    
+
+    # This is unnecessary unless you want to autodetect the radio module that will work
+    # with a given port
+    #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
+
+    self.zigpyApp = await ControllerApplication.new(
+        config=ControllerApplication.SCHEMA(zigpy_config),
+        auto_form=True,
+        start_radio=True,
+    )
 
     listener = MainListener( self.zigpyApp, self.domoticzDevices )
     self.zigpyApp.add_listener(listener)

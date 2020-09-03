@@ -3,22 +3,36 @@
 ## Principles
 
     1. Create a Persistent object to store all activities. Attention the API will be based on the zigpy-<hardware> layer you are going to use.
-        * For the zigpy-zigate layer
+        * F
             ```
-            zigpyApp = await ControllerApplication.new
-            (
-                config=ControllerApplication.SCHEMA
-                (
-                    {
-                    "database_path": "/tmp/zigpy.db",
-                    "device": {
-                        "path": "/dev/null", #/dev/ttyUSBRPI3",
-                        }
-                    }
-                ),
+            import zigpy.config as conf
+
+            # For zigate you will replace radio by zigpy-radio, 
+            # For Texas Instruments ZNP (Zigbee Network Processors)  you wioll replace radio by zigpy-znp
+            from radio import ControllerApplication
+
+            # Config required to connect to a given device
+            device_config = {
+                conf.CONF_DEVICE_PATH: "/dev/ttyUSB0",
+            }
+
+            # Config required to setup zigpy
+            zigpy_config = {
+                conf.CONF_DATABASE: "/tmp/zigpy.db",
+                conf.CONF_DEVICE: device_config
+            }
+
+            # This is unnecessary unless you want to autodetect the radio module that will work
+            # with a given port
+            #does_radio_work = await ControllerApplication.probe(conf.SCHEMA_DEVICE(device_config))
+
+            app = await ControllerApplication.new(
+                config=ControllerApplication.SCHEMA(zigpy_config),
+                auto_form=True,
                 start_radio=True,
             )
             ```
+
 
     2. Create the Zigbee listner : 
         ```
