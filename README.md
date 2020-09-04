@@ -85,6 +85,12 @@ Keep the same principle as for the ZiGate plugin, no middle application in betwe
 
 Try to ease the integration of the Zigate plugin . There are quiet a large developement done like Schneider (where we simulate more-less the HUB) , and it would benefit to the new plugin. In such it might be helpfull to keep a number of API common between the 2 plugins !
 
+a 2 steps approach can be taken:
+1. building a kind of layer between the zigpy and the existing zigate plugin in order to speedup and reuse the existing code and make the integration at a similar level of the current Zigate plugin with the admin interface.
+   * It will anyway remove some of the existing code, as the quirk will provide 'native' what is currently embedded in the zigate plugin code.
+   * On the otherside, need to see how to faster the existing Device integration and get quirks for them ( Legrand is an important one, Livolo ....)
+1. refactor the code to use the zigpy power.
+
 ### Threads (to be claified)
 
 1. The PythonPluginThread (main thread).
