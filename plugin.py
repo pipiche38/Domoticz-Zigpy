@@ -171,46 +171,39 @@ async def main( self ):
     # Make sure that we have the quirks embedded.
     import zhaquirks  # noqa: F401
 
-    if self.domoticzParameters["Mode1"] == 'zigate':
-        from zigpy_zigate.zigbee.application import ControllerApplication
-        if self.domoticzParameters["Mode2"] in ( 'USB', 'DIN'):
-            path = self.domoticzParameters["SerialPort"]
-
-        elif self.domoticzParameters["Mode2"] == 'PI':
-            path = 'pizigate:%s' %self.domoticzParameters["SerialPort"]
-        else:
-            Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode2"])
-            return
-
-        # Config required to connect to a given device
-        device_config = {
-            conf.CONF_DEVICE_PATH: path,
-        }
-
-    elif self.domoticzParameters["Mode1"] == 'znp':
-        from zigpy_znp.zigbee.application import ControllerApplication
+    if self.domoticzParameters["Mode2"] in ( 'USB', 'DIN'):
         path = self.domoticzParameters["SerialPort"]
-        # Config required to connect to a given device
-        device_config = {
-            conf.CONF_DEVICE_PATH: path,
-        }
-
-    elif self.domoticzParameters["Mode1"] == 'bellows':
-        from bellows.zigbee.application import ControllerApplication
-        path = self.domoticzParameters["SerialPort"]
-        device_config = {
-            conf.CONF_DEVICE_PATH: path,
-        }
-
+    elif self.domoticzParameters["Mode2"] == 'PI':
+        path = 'pizigate:%s' %self.domoticzParameters["SerialPort"]
+    elif self.domoticzParameters["Mode2"] == 'Wifi':
+        path = 'socket://%s:%s' %(self.domoticzParameters["Address"], self.domoticzParameters["Port"])
     else:
-        Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode1"])
+        Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode2"])
         return
+
+    # Config required to connect to a given device
+    device_config = {
+        conf.CONF_DEVICE_PATH: path,
+    }
 
     # Config required to setup zigpy
     zigpy_config = {
         conf.CONF_DATABASE: self.domoticzParameters["HomeFolder"] + PERSISTENT_DB + '.db',
         conf.CONF_DEVICE: device_config
-    }    
+    }
+
+    if self.domoticzParameters["Mode1"] == 'zigate':
+        from zigpy_zigate.zigbee.application import ControllerApplication
+
+    elif self.domoticzParameters["Mode1"] == 'znp':
+        from zigpy_znp.zigbee.application import ControllerApplication
+
+    elif self.domoticzParameters["Mode1"] == 'bellows':
+        from bellows.zigbee.application import ControllerApplication
+
+    else:
+        Domoticz.Error("Mode: %s Not implemented Yet" %self.domoticzParameters["Mode1"])
+        return
 
     # This is unnecessary unless you want to autodetect the radio module that will work
     # with a given port
