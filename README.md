@@ -8,6 +8,38 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
 
 - <https://github.com/zigpy/zigpy>
 
+## WARNING!!! - Work in progress
+
+at that stage, this is more a Proof of Concept than anything else.
+
+Due to a bug ( https://github.com/domoticz/domoticz/issues/4312 ) it doesn't work with a standard Domoticz binary file.
+Domoicz must be recompiled and linked with disabling the use of BULTIN SQLITE
+Edit the file CMakeList.txt and disable the "Use of builtin sqlite library" in order to link with the standard SQLITE3 lib.
+`option(USE_BUILTIN_SQLITE "Use builtin sqlite library" NO)
+
+For now there are a number of show stoppers to go forward:
+
+   * Domoticz issue, there are some conflict around SQLITE3 usage [Issue #4312](https://github.com/domoticz/domoticz/issues/4312)
+   * Zigpy library and quirk are developped for Home Automation with no documentation on how to use. These are very focus on the HA design. Using Zigpy on Domoticz required a lot of work at that stage :
+      1. Understand how to use zigpy
+      1. Understand what to do in order to have a correct setup (inside the plugin) to get all events from devices
+      
+   * Zigpy has not a lot of manufacturer device support. During my work on the proof of concept, quiet a number of the devices that I'm using often for my devlopement and tests where not full supported and created error messages. The end result would be for the current ZiGat users a lack of supported devices.
+      * Aqara Opple Switches not supported
+      * Xiaomi Vibration making errors
+      * Legrand devices not supported (leave the network after a while )
+   
+   * The Zigate layer is not really mature and is at an early stage. That mean that we wouldn't have such integration level with ZiGate as we have currently with the ZiGate plugin for Domoticz.
+   
+   
+Unfortunatly at that stage, I'm not able to move forward:
+
+1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
+1. Required a lot of time to be spent in order to understand how the zigpy library .
+
+
+
+
 ## TO BE ADDRESSED
 
 * [IMPORTANT] Performances. The proof of concept has been developped with a LUMI Motion Sensor. This communicate 2 events ( Motion detection via Cluster 0x0406 and Illuminence via cluster 0x0400 ). 
@@ -38,27 +70,6 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
   * No access to ZiGate reset ( which is quiet convenient when hang). The reset allow to reboot the Zigbee stack of the zigate without any break.
   
 
-## WARNING
-
-For now there are a number of show stoppers to go forward:
-
-   * Domoticz issue, there are some conflict around SQLITE3 usage [Issue #4312](https://github.com/domoticz/domoticz/issues/4312)
-   * Zigpy library and quirk are developped for Home Automation with no documentation on how to use. These are very focus on the HA design. Using Zigpy on Domoticz required a lot of work at that stage :
-      1. Understand how to use zigpy
-      1. Understand what to do in order to have a correct setup (inside the plugin) to get all events from devices
-      
-   * Zigpy has not a lot of manufacturer device support. During my work on the proof of concept, quiet a number of the devices that I'm using often for my devlopement and tests where not full supported and created error messages. The end result would be for the current ZiGat users a lack of supported devices.
-      * Aqara Opple Switches not supported
-      * Xiaomi Vibration making errors
-      * Legrand devices not supported (leave the network after a while )
-   
-   * The Zigate layer is not really mature and is at an early stage. That mean that we wouldn't have such integration level with ZiGate as we have currently with the ZiGate plugin for Domoticz.
-   
-   
-Unfortunatly at that stage, I'm not able to move forward:
-
-1. Risk to develop a plugin based on assumption that Domoticz sqlite3 issue will be fixed.
-1. Required a lot of time to be spent in order to understand how the zigpy library .
 
 
 
@@ -110,15 +121,12 @@ with Zigbee radios which all aim to provide a coherent and consistent API in ord
 easier for integrations to support multiple adapters for different hardware manufacturers. For now though it 
 is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
 
-- [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/
-zigpy/bellows)
-- [zigpy-cc - zigpy radio library supporting older Texas Instruments Z-Stack (CC253x) based Zigbee radios]
-(https://github.com/zigpy/zigpy-cc)
+- [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/zigpy/bellows)
+- [zigpy-cc - zigpy radio library supporting older Texas Instruments Z-Stack (CC253x) based Zigbee radios](https://github.com/zigpy/zigpy-cc)
 - [zigpy-deconz - zigpy radio library supporting dresden dlektronik deCONZ (ConBee and RaspBee) based Zigbee 
 radios](https://github.com/zigpy/zigpy-deconz)
 - [zigpy-xbee - zigpy radio library supporting XBee based Zigbee radios](https://github.com/zigpy/zigpy-xbee)
-- [zigpy-zigate - zigpy radio library supporting ZiGate based Zigbee radios](https://github.com/zigpy/
-zigpy-zigate)
+- [zigpy-zigate - zigpy radio library supporting ZiGate based Zigbee radios](https://github.com/zigpy/zigpy-zigate)
 - [zigpy-znp - zigpy radio library supporting newer Texas Instruments Z-Stack (CC2652 and CC1352) based Zigbee 
 radios](https://github.com/zha-ng/zigpy-znp)
 
