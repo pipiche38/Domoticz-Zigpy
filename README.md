@@ -8,6 +8,15 @@ Zigbee integration via zigpy will allow users to directly connect one of many of
 
 - <https://github.com/zigpy/zigpy>
 
+## WARNING!!! - Work in progress
+
+at that stage, this is more a Proof of Concept than anything else.
+
+Due to a bug ( https://github.com/domoticz/domoticz/issues/4312 ) it doesn't work with a standard Domoticz binary file.
+Domoicz must be recompiled and linked with disabling the use of BULTIN SQLITE
+Edit the file CMakeList.txt and disable the "Use of builtin sqlite library" in order to link with the standard SQLITE3 lib.
+`option(USE_BUILTIN_SQLITE "Use builtin sqlite library" NO)
+
 ## TO BE ADDRESSED
 
 * [IMPORTANT] Performances. The proof of concept has been developped with a LUMI Motion Sensor. This communicate 2 events ( Motion detection via Cluster 0x0406 and Illuminence via cluster 0x0400 ). 
