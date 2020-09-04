@@ -1,36 +1,45 @@
 """
 <plugin key="Zigpy" name="Zigpy plugin" author="pipiche38" version="0.0.1" wikilink="http://www.domoticz.com/wiki/plugins/plugin.html" externallink="https://www.google.com/">
     <description>
-        <h2> Plugin Zigate for Domoticz </h2><br/>
-    <h3> Short description </h3>
-           This plugin allow Domoticz to access to the Zigate (Zigbee) worlds of devices.<br/>
-    <h3> Configuration </h3>
-          You can use the following parameter to interact with the Zigate:<br/>
-    <ul style="list-style-type:square">
-            <li> Model: Wifi</li>
-            <ul style="list-style-type:square">
-                <li> IP : For Wifi Zigate, the IP address. </li>
-                <li> Port: For Wifi Zigate,  port number. </li>
+        <h2> Plugin Zigpy for Domoticz </h2><br/>
+            <h3> Short description </h3>
+                This plugin allow Domoticz to access to the Zigbee worlds of devices via zigpy library and the associated Radio libs.<br/>
+            <h3> Configuration </h3>
+                You can use the following parameter to interact with the Zigbee Radio Hardware:<br/>
+                <ul style="list-style-type:square">
+                    <li> Zigbee Radio Hardware </li>
+                    <ul style="list-style-type:square">
+                        <li> ezsp: 	 Silicon Labs EmberZNet protocol (ex; Elelabs, HUSBZB-1, Telegesis). </li>
+                        <li> deconz: dresden elektronik deCONZ protocol: ConBee I/II, RaspBee I/II. </li>
+                        <li> ti_cc:  Texas Instruments Z-Stack ZNP protocol (ex: CC253x, CC26x2, CC13x2). </li>
+                        <li> zigate: ZiGate Controller. You'll have to select between PiZiGate, ZiGate USB-TTL, ZiGate WiFi. </li>
+                        <li> xbee: 	 Digi XBee ZB Coordinator Firmware protocol (Digi XBee Series 2, 2C, 3) </li>
+                    </ul>
                 </ul>
-                <li> Model USB ,  PI or DIN:</li>
-            <ul style="list-style-type:square">
-                <li> Serial Port: this is the serial port where your USB or DIN Zigate is connected. (The plugin will provide you the list of possible ports)</li>
+                <ul style="list-style-type:square">
+                    <li> Model: Wifi</li>
+                    <ul style="list-style-type:square">
+                        <li> IP : For Wifi, the IP address. </li>
+                        <li> Port: For Wifi,  port number. </li>
+                    </ul>
+                        <li> Model USB ,  PI or DIN:</li>
+                    <ul style="list-style-type:square">
+                        <li> Serial Port: this is the serial port where your Radio hardware is connected. (The plugin will provide you the list of possible ports)</li>
+                    </ul>
+                    <li> Initialize Radio Hardware with plugin: This is a required step, with a new Radio device or if you have done an Erase EEPROM. This will for instance create a new ZigBee Network. </li>
                 </ul>
-            <li> Initialize ZiGate with plugin: This is a required step, with a new ZiGate or if you have done an Erase EEPROM. This will for instance create a new ZigBee Network. </li>
-    </ul>
-    <h3> Support </h3>
-    Please use first the Domoticz forums in order to qualify your issue. Select the ZigBee or Zigate topic.
     </description>
+
     <params>
-        <param field="Mode1" label="HW Model" width="75px" required="true" default="None">
+        <param field="Mode1" label="Radio Hardware Type" width="75px" required="true" default="None">
             <options>
-                <option label="zigpy-zigate (ZiGate controller)" value="zigpy-zigate" default="None" />
-                <option label="zigpy-znp (Texas Instruments ZNP)" value="zigpy-znp" default="None" />
-                <option label="bellows" value="bellows (Silicon Labs EM35x ('Ember') and EFR32 ('Mighty Gecko') )" default="None" />
+                <option label="zigate (ZiGate controller)" value="zigate" default="None" />
+                <option label="znp (Texas Instruments ZNP)" value="znp" default="None" />
+                <option label="bellows (Silicon Labs EM35x ('Ember') and EFR32 ('Mighty Gecko') )" value="bellows" default="None" />
             </options>
         </param>
 
-        <param field="Mode2" label="Zigate Model" width="75px" required="true" default="None">
+        <param field="Mode2" label="Radio Hardware sub-type (if applicable)" width="75px" required="true" default="None">
             <options>
                 <option label="USB" value="USB" default="true" />
                 <option label="DIN" value="DIN" />
@@ -40,11 +49,13 @@
             </options>
         </param>
 
-        <param field="Address" label="IP" width="150px" required="true" default="0.0.0.0"/>
+        <param field="Address" label="IP address" width="150px" required="true" default="0.0.0.0"/>
+
         <param field="Port" label="Port" width="150px" required="true" default="9999"/>
+        
         <param field="SerialPort" label="Serial Port" width="150px" required="true" default="/dev/ttyUSB0"/>
 
-        <param field="Mode3" label="Initialize ZiGate (Erase Memory) " width="75px" required="true" default="False" >
+        <param field="Mode3" label="Initialize Radio controller (Erase Memory) " width="75px" required="true" default="False" >
             <options>
                 <option label="True" value="True"/>
                 <option label="False" value="False" default="true" />
@@ -160,7 +171,7 @@ async def main( self ):
     # Make sure that we have the quirks embedded.
     import zhaquirks  # noqa: F401
 
-    if self.domoticzParameters["Mode1"] == 'zigpy-zigate':
+    if self.domoticzParameters["Mode1"] == 'zigate':
         from zigpy_zigate.zigbee.application import ControllerApplication
         if self.domoticzParameters["Mode2"] in ( 'USB', 'DIN'):
             path = self.domoticzParameters["SerialPort"]
@@ -176,7 +187,7 @@ async def main( self ):
             conf.CONF_DEVICE_PATH: path,
         }
 
-    elif self.domoticzParameters["Mode1"] == 'zigpy-znp':
+    elif self.domoticzParameters["Mode1"] == 'znp':
         from zigpy_znp.zigbee.application import ControllerApplication
         path = self.domoticzParameters["SerialPort"]
         # Config required to connect to a given device
