@@ -1,5 +1,7 @@
 # Zigpy plugin for Domoticz
 
+UNFORTUNATLY THIS PROJECT IS CLOSE, DUE TO THE FACT THAT THE ZIGPY LIBRARY IS NOT COMPATIBLE WITH DOMOTICZ (OR VICE-VERSA).
+
 ## Introduction
 
 [Domoticz-Zigpy](https://github.com/zigpy/zigpy) is an integration project which goal is to implement hardware independent Zigbee support in [Domoticz](https://www.domoticz.com/) open source home automation software using the [https://github.com/zigpy/zigpy/ zigpy] Python library.
