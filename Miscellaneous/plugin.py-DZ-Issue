@@ -63,7 +63,7 @@
 
 import Domoticz
 import threading
-import sqlite3
+import aiosqlite
 
 
 DB_VERSION = 0x0003
@@ -71,7 +71,7 @@ DB_VERSION = 0x0003
 class PersistingListener:
     def __init__(self, database_file):
         self._database_file = database_file
-        self._db = sqlite3.connect(database_file, detect_types=sqlite3.PARSE_DECLTYPES)
+        self._db = aiosqlite.connect(database_file, detect_types=aiosqlite.PARSE_DECLTYPES)
         self._cursor = self._db.cursor()
 
         self._enable_foreign_keys()
