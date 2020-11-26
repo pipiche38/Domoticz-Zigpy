@@ -65,7 +65,7 @@ import Domoticz
 import asyncio
 import threading
 import logging
-import sqlite3
+import aiosqlite
 
 # There are many different radio libraries but they all have the same API
 from zigpy_zigate.zigbee.application import ControllerApplication
