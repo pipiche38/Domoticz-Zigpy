@@ -25,7 +25,7 @@ To do that, edit the file CMakeList.txt and disable the "Use of builtin sqlite l
 
 For now there are a number of show stoppers that need to be solved/sorted/fixed or have a more acceptable workaround before can move forward:
 
-   * Domoticz issue, there are some conflict around SQLITE3 usage [Issue #4312](https://github.com/domoticz/domoticz/issues/4312)
+   * Domoticz issue, there are some conflict around SQLITE3 usage discussed in [Domoticz issue #4312](https://github.com/domoticz/domoticz/issues/4312) with continued discussions in [domoticz-sqlite3-issue issue #1](https://github.com/pipiche38/domoticz-sqlite3-issue/issues/1)
    * Zigpy library and quirk are developped for Home Automation with no documentation on how to use. These are very focus on the HA design. Using Zigpy on Domoticz required a lot of work at that stage :
       1. Understand how to use zigpy
       2. Understand what to do in order to have a correct setup (inside the plugin) to get all events from devices
