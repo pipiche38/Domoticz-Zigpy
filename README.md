@@ -131,13 +131,12 @@ easier for integrations to support multiple adapters for different hardware manu
 is only being tested with the ZiGate hardware using the zigpy-zigate radio library.
 
 - [bellows - zigpy radio library supporting Silicons Labs EmberZNet based Zigbee radios](https://github.com/zigpy/bellows)
-- [zigpy-cc - zigpy radio library supporting older Texas Instruments Z-Stack (CC253x) based Zigbee radios](https://github.com/zigpy/zigpy-cc)
+- [zigpy-znp - zigpy radio library supporting newer Texas Instruments Z-Stack (CC2652 and CC1352) based Zigbee 
+radios](https://github.com/zha-ng/zigpy-znp)
 - [zigpy-deconz - zigpy radio library supporting dresden dlektronik deCONZ (ConBee and RaspBee) based Zigbee 
 radios](https://github.com/zigpy/zigpy-deconz)
 - [zigpy-xbee - zigpy radio library supporting XBee based Zigbee radios](https://github.com/zigpy/zigpy-xbee)
 - [zigpy-zigate - zigpy radio library supporting ZiGate based Zigbee radios](https://github.com/zigpy/zigpy-zigate)
-- [zigpy-znp - zigpy radio library supporting newer Texas Instruments Z-Stack (CC2652 and CC1352) based Zigbee 
-radios](https://github.com/zha-ng/zigpy-znp)
 
 It addition it will utilize the zha-device-handlers (a.k.a. zha-quirks) library from the zigpy project as a 
 dependency which will act as a tranaslator to try to handle individual Zigbee device exception and deviation 
